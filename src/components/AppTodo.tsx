@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import { observer } from "mobx-react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 
 import AppText from "./ui/AppText";
@@ -10,17 +11,17 @@ type Props = {
     onOpen: (id: string | null) => void
 };
 
-const AppTodo: FC<Props> = ({ todo, onDelete, onOpen }) => (
+const AppTodo: FC<Props> = observer(({ todo, onDelete, onOpen }) => (
     <TouchableOpacity
         activeOpacity={0.5}
-        onPress={ onOpen.bind(null, todo.id) }
+        onPress={ () => onOpen(todo.id) }
         onLongPress={ onDelete.bind(null, todo) }
     >
         <View style={ styles.todo } >
             <AppText >{ todo.title }</AppText>
         </View>
     </TouchableOpacity>
-);
+));
 
 const styles = StyleSheet.create({
     todo: {

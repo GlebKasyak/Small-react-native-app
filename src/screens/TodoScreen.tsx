@@ -1,29 +1,31 @@
-import React, { FC, useState, useContext } from "react";
+import React, { FC, useState } from "react";
+import { observer, inject } from "mobx-react";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import { View, StyleSheet, Dimensions } from "react-native";
 
 import { AppCard, EditModal, AppTextBold, AppButton } from "../components";
 import { Colors } from "../../assets/styles";
-import { Todo } from "../interfaces/todo";
-import { ScreenContext } from "../store/screen/screenContext";
-import { TodoContext } from "../store/todo/todoContext";
+import { Todo, TodoStoreType } from "../interfaces/todo";
 
-const TodoScreen: FC = () => {
-    const { changeScreen, todoId } = useContext(ScreenContext);
-    const { removeTodo, updateTodo, todos } = useContext(TodoContext);
+import { ScreeStoreType } from "../interfaces/screen";
+import { StoreType } from "../store";
 
+type Props = {
+    screenStore: ScreeStoreType,
+    todoStore: TodoStoreType
+};
+
+const TodoScreen: FC<Props> = ({ screenStore, todoStore }) => {
     const [modal, setModal] = useState(false);
+    const todo = todoStore.todos.find(todo => todo.id === screenStore.todoId) as Todo
 
-    const todo = todos.find(todo => todo.id === todoId) as Todo;
-
-    const saveHandler = (title: string) => {
-        updateTodo(title, todo.id);
+    const saveHandler = async  (title: string) => {
+        await todoStore.updateTodo(title, todo.id)
         setModal(false);
     };
 
     const onRemove = () => {
-        changeScreen(null);
-        removeTodo(todo);
+        todoStore.removeTodo(todo);
     };
 
     return (
@@ -43,7 +45,10 @@ const TodoScreen: FC = () => {
 
             <View style={ styles.buttons } >
                 <View style={ styles.button } >
-                    <AppButton color={ Colors.GREY } onPress={ changeScreen.bind(null, null) } >
+                    <AppButton
+                        color={ Colors.GREY }
+                        onPress={ screenStore.changeScreen.bind(null, null) }
+                    >
                         <AntDesign name="back" size={20} color={ Colors.WHITE } />
                     </AppButton>
                 </View>
@@ -55,8 +60,7 @@ const TodoScreen: FC = () => {
             </View>
         </View>
     )
-};
-
+}
 const styles = StyleSheet.create({
     buttons: {
         flexDirection: "row",
@@ -74,4 +78,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default TodoScreen;
+export default inject<StoreType, {}, Props, {}>(({ rootStore }) => ({
+    screenStore: rootStore.screenStore,
+    todoStore: rootStore.todoStore
+}))(observer(TodoScreen) as unknown as FC<{}>);

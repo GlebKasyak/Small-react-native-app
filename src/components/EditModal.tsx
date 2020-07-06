@@ -1,4 +1,5 @@
 import React, { FC, useState } from "react";
+import { observer } from "mobx-react";
 import { View, TextInput, Modal, StyleSheet, Alert } from "react-native";
 
 import AppButton from "./ui/AppButton";
@@ -11,7 +12,8 @@ type Props = {
     onSave: (title: string) => void
 };
 
-const EditModal: FC<Props>= ({ value, visible, onCancel, onSave }) => {
+
+const EditModal: FC<Props> = ({ value, visible, onCancel, onSave }) => {
     const [newValue, setNewValue] = useState(value);
 
     const saveHandler = () => {
@@ -72,4 +74,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default EditModal;
+export default observer(EditModal);
