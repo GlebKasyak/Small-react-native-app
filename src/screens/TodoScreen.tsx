@@ -19,8 +19,8 @@ const TodoScreen: FC<Props> = ({ screenStore, todoStore }) => {
     const [modal, setModal] = useState(false);
     const todo = todoStore.todos.find(todo => todo.id === screenStore.todoId) as Todo
 
-    const saveHandler = (title: string) => {
-        todoStore.updateTodo(title, todo.id)
+    const saveHandler = async  (title: string) => {
+        await todoStore.updateTodo(title, todo.id)
         setModal(false);
     };
 

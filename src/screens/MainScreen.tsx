@@ -2,7 +2,7 @@ import React, { Component, ComponentClass } from "react";
 import { observer, inject } from "mobx-react";
 import { View, StyleSheet, FlatList, Image, Dimensions } from "react-native";
 
-import { AddTodo, AppTodo } from "../components";
+import { AddTodo, AppTodo, AppLoader, AppError } from "../components";
 import { Todo } from "../interfaces/todo";
 import { Indentations } from "../../assets/styles";
 import { ScreeStoreType } from "../interfaces/screen";
@@ -21,6 +21,8 @@ class MainScreen extends Component<Props> {
     };
 
     componentDidMount() {
+        this.props.todoStore.fetchTodos();
+
         Dimensions.addEventListener("change", this.update);
     };
 
@@ -35,7 +37,12 @@ class MainScreen extends Component<Props> {
 
     render() {
         const { changeScreen } = this.props.screenStore;
-        const { addTodo, todos, removeTodo } = this.props.todoStore;
+        const { addTodo, todos, removeTodo, fetchTodos, loading, error } = this.props.todoStore;
+
+        if(loading) return <AppLoader />;
+        if(error) {
+            return <AppError onFetch={ fetchTodos } error={ error } />
+        }
 
         return (
             <View >

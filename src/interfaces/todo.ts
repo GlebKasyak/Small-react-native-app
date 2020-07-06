@@ -5,9 +5,12 @@ export type Todo = {
 };
 
 export type TodoStoreType = {
-    todos: Array<Todo>
+    todos: Array<Todo>,
+    loading: boolean,
+    error: null | string
 
-    addTodo(title: string): void,
-    removeTodo(todo: Todo): void,
-    updateTodo(title: string, id: string): void
+    fetchTodos(): Promise<void>,
+    addTodo(title: string): Promise<void>,
+    removeTodo(todo: Todo): Promise<void>,
+    updateTodo(title: string, id: string): Promise<void>
 }

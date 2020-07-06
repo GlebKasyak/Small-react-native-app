@@ -18,7 +18,7 @@ class MainLayout extends Component<Props> {
         const { todoId } = this.props.screenStore;
 
         return (
-            <View >
+            <View style={ styles.wrapper } >
                 <NavBar />
                 <View style={ styles.container } >
                     { !!todoId
@@ -34,8 +34,12 @@ class MainLayout extends Component<Props> {
 const styles = StyleSheet.create({
     container: {
         paddingHorizontal: Indentations.PADDING_HORIZONTAL,
-        paddingVertical: 20
+        paddingVertical: 20,
+        flex: 1
     },
+    wrapper: {
+        flex: 1
+    }
 });
 
 export default inject<StoreType, {}, Props, {}>(({ rootStore }) => ({
