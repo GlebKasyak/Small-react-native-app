@@ -1,25 +1,34 @@
-import React, { useContext } from "react";
+import React, { Component, ComponentClass } from "react";
+import { observer, inject } from "mobx-react";
 import { View, StyleSheet } from "react-native";
 
 import { NavBar } from "./components";
 import { Indentations } from "../assets/styles";
-import { ScreenContext } from "./store/screen/screenContext";
+import { ScreeStoreType } from "./interfaces/screen";
+import { StoreType } from "./store";
 import { MainScreen, TodoScreen } from "./screens";
 
-const MainLayout = () => {
-    const { todoId } = useContext(ScreenContext);
+type Props = {
+    screenStore: ScreeStoreType
+};
 
-    return (
-        <View >
-            <NavBar />
-            <View style={ styles.container } >
-                { todoId
-                    ? <TodoScreen />
-                    : <MainScreen />
-                }
+@observer
+class MainLayout extends Component<Props> {
+    render() {
+        const { todoId } = this.props.screenStore;
+
+        return (
+            <View >
+                <NavBar />
+                <View style={ styles.container } >
+                    { !!todoId
+                        ? <TodoScreen />
+                        : <MainScreen />
+                    }
+                </View>
             </View>
-        </View>
-    )
+        )
+    }
 };
 
 const styles = StyleSheet.create({
@@ -29,4 +38,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MainLayout;
+export default inject<StoreType, {}, Props, {}>(({ rootStore }) => ({
+    screenStore: rootStore.screenStore,
+}))(MainLayout as unknown as ComponentClass<{}>)

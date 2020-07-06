@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { Provider } from "mobx-react"
+import "mobx-react-lite/batchingForReactDom";
 import * as Font from "expo-font";
 import { AppLoading } from "expo";
 
 import MainLayout from "./src/MainLayout";
-import { TodoState, ScreenState } from "./src/store";
+import rootStore from "./src/store";
 import Fonts from "./assets/fonts";
 
 async function loadApplication() {
@@ -25,11 +27,9 @@ export default function App() {
     }
 
     return (
-        <ScreenState>
-            <TodoState>
-                <MainLayout/>
-            </TodoState>
-        </ScreenState>
+        <Provider rootStore={ rootStore } >
+            <MainLayout />
+        </Provider>
     );
 };
 

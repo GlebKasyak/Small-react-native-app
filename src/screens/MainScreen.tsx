@@ -1,62 +1,72 @@
-import React, { FC, useState, useEffect, useContext } from "react";
+import React, { Component, ComponentClass } from "react";
+import { observer, inject } from "mobx-react";
 import { View, StyleSheet, FlatList, Image, Dimensions } from "react-native";
 
 import { AddTodo, AppTodo } from "../components";
-import { ScreenContext } from "../store/screen/screenContext";
-import { TodoContext } from "../store/todo/todoContext";
 import { Todo } from "../interfaces/todo";
 import { Indentations } from "../../assets/styles";
+import { ScreeStoreType } from "../interfaces/screen";
+import { TodoStoreType } from "../interfaces/todo";
+import { StoreType } from "../store";
 
-const MainScreen: FC = () => {
-    const { addTodo, todos, removeTodo } = useContext(TodoContext);
-    const { changeScreen } = useContext(ScreenContext);
+type Props = {
+    screenStore: ScreeStoreType,
+    todoStore: TodoStoreType
+};
 
-    const [deviceWidth, setDeviceWidth] = useState(
-        Dimensions.get("window").width - Indentations.PADDING_HORIZONTAL * 2
-    );
+@observer
+class MainScreen extends Component<Props> {
+    state = {
+        deviceWidth: Dimensions.get("window").width - Indentations.PADDING_HORIZONTAL * 2
+    };
 
-    useEffect(() => {
-        const update = () => {
-            const width = Dimensions.get("window").width - Indentations.PADDING_HORIZONTAL * 2;
-            setDeviceWidth(width);
-        };
+    componentDidMount() {
+        Dimensions.addEventListener("change", this.update);
+    };
 
-        Dimensions.addEventListener("change", update);
+    componentWillUnmount() {
+        Dimensions.removeEventListener("change", this.update);
+    };
 
-        return () => {
-            Dimensions.removeEventListener("change", update);
-        }
-    });
+    update = () => {
+        const width = Dimensions.get("window").width - Indentations.PADDING_HORIZONTAL * 2;
+        this.setState({ deviceWidth: width });
+    };
 
-    return (
-        <View >
-            <AddTodo onSubmit={ addTodo } />
-            { !!todos.length
-                ? (
-                    <View style={{ width: deviceWidth }} >
-                        <FlatList
-                            data={ todos }
-                            keyExtractor={ (item: Todo) => item.id }
-                            renderItem={({ item }) => (
-                                <AppTodo
-                                    onDelete={ removeTodo }
-                                    todo={ item }
-                                    onOpen={ changeScreen }
-                                />
-                            )}
-                        />
-                    </View>)
-                : (
-                    <View style={ styles.imageWrapper } >
-                        <Image
-                            source={ require('../../assets/noItems.png') }
-                            style={ styles.image }
-                        />
-                    </View>
-                )
-            }
-        </View>
-    )
+    render() {
+        const { changeScreen } = this.props.screenStore;
+        const { addTodo, todos, removeTodo } = this.props.todoStore;
+
+        return (
+            <View >
+                <AddTodo onSubmit={ addTodo } />
+                { !!todos.length
+                    ? (
+                        <View style={{ width: this.state.deviceWidth }} >
+                            <FlatList
+                                data={ todos }
+                                keyExtractor={ (item: Todo) => item.id }
+                                renderItem={({ item }) => (
+                                    <AppTodo
+                                        onDelete={ removeTodo }
+                                        todo={ item }
+                                        onOpen={ changeScreen }
+                                    />
+                                )}
+                            />
+                        </View>)
+                    : (
+                        <View style={ styles.imageWrapper } >
+                            <Image
+                                source={ require('../../assets/noItems.png') }
+                                style={ styles.image }
+                            />
+                        </View>
+                    )
+                }
+            </View>
+        )
+    }
 };
 
 const styles = StyleSheet.create({
@@ -73,4 +83,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default MainScreen;
+export default inject<StoreType, {}, Props, {}>(({ rootStore }) => ({
+    screenStore: rootStore.screenStore,
+    todoStore: rootStore.todoStore
+}))(MainScreen as unknown as ComponentClass<{}>)
